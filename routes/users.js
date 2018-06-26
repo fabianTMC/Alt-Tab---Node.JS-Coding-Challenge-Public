@@ -3,6 +3,8 @@ let express = require('express');
 const UsersModel = require("../models/users_model");
 const validator = require('validator');
 
+const config = require("../config");
+const jwt = require('express-jwt');
 const Token = require("../utils/Token");
 
 module.exports = function(mongoose) {
@@ -104,6 +106,21 @@ module.exports = function(mongoose) {
                 message: "Invalid body",
             }).end();
         }
+    });
+
+    router.get("/profile", jwt({secret: config.jwt.secret}), (req, res) => {
+        UsersModel.findOne({uuid: req.user.uuid}, (err, user) => {
+            if(err) {
+                console.log(err);
+
+                return res.status(500).json({
+                    success: false,
+                    message: "Internal server error",
+                }).end();
+            } else {
+                return res.status(200).json(user).end();
+            }
+        });
     });
 
     return router;
