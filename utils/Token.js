@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const expressJWT = require('express-jwt');
 const config = require('../config');
 
 function IssueToken(payload) {
@@ -9,4 +10,5 @@ function IssueToken(payload) {
 
 module.exports = {
     IssueToken: IssueToken,
+    ValidateToken: expressJWT({secret: config.jwt.secret}),
 };
