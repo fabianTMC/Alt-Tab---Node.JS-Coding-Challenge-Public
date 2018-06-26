@@ -56,5 +56,55 @@ module.exports = function(mongoose) {
         }
     });
 
+    router.post("/login", (req, res) => {
+        if(req.body) {
+            if(req.body.email && validator.isEmail(req.body.email) && req.body.password && !validator.isEmpty(req.body.password)) {
+                // fetch user and test password verification
+                UsersModel.findOne({email: req.body.email}, (err, user) => {
+                    if(err) {
+                        console.log(err);
+
+                        return res.status(500).json({
+                            success: false,
+                            message: "Internal server error",
+                        }).end();
+                    } else {
+                        // test a matching password
+                        user.comparePassword(req.body.password, (err, isMatch) => {
+                            if(err) {
+                                console.log(err);
+                                return res.status(500).json({
+                                    success: false,
+                                    message: "Internal server error",
+                                }).end();
+                            } else {
+                                if(isMatch) {
+                                    res.status(200).json({
+                                        success: true,
+                                        token: Token.IssueToken({uuid: user.uuid}),
+                                    }).end();
+                                } else {
+                                    res.status(200).json({
+                                        success: false,
+                                    }).end();
+                                }
+                            }
+                        });
+                    }
+                });
+            } else {
+                return res.status(400).json({
+                    success: false,
+                    message: "Invalid body",
+                }).end();
+            }
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid body",
+            }).end();
+        }
+    });
+
     return router;
 }
