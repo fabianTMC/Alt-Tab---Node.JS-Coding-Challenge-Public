@@ -36,10 +36,21 @@ module.exports = function(mongoose) {
                             message: "Internal server error",
                         }).end();
                     } else {
-                        return res.status(201).json({
-                            success: true,
-                            token: Token.IssueToken({uuid: user.uuid}),
-                        }).end();
+                        Token.IssueToken(user.uuid)
+                        .then(token => {
+                            return res.status(201).json({
+                                success: true,
+                                token: token,
+                            }).end();
+                        })
+                        .catch(err => {
+                            console.log(err);
+
+                            return res.status(500).json({
+                                success: false,
+                                message: "Internal server error",
+                            }).end();
+                        })
                     }
                 });
             } else {
@@ -79,10 +90,21 @@ module.exports = function(mongoose) {
                                 }).end();
                             } else {
                                 if(isMatch) {
-                                    res.status(200).json({
-                                        success: true,
-                                        token: Token.IssueToken({uuid: user.uuid}),
-                                    }).end();
+                                    Token.IssueToken(user.uuid)
+                                    .then(token => {
+                                        return res.status(200).json({
+                                            success: true,
+                                            token: token,
+                                        }).end();
+                                    })
+                                    .catch(err => {
+                                        console.log(err);
+
+                                        return res.status(500).json({
+                                            success: false,
+                                            message: "Internal server error",
+                                        }).end();
+                                    });
                                 } else {
                                     res.status(200).json({
                                         success: false,
@@ -119,6 +141,21 @@ module.exports = function(mongoose) {
                 return res.status(200).json(user).end();
             }
         });
+    });
+
+    router.post("/logout", Token.ValidateToken, (req, res) => {
+        Token.RevokeToken(req.user.uuid, req.token)
+        .then(token => {
+            res.status(200).json({
+                success: true,
+            }).end();
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).json({
+                message: "Internal Server Error",
+            }).end();
+        })
     });
 
     return router;
