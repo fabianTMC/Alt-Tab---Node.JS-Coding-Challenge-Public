@@ -25,11 +25,9 @@ const UsersSchema = new mongoose.Schema({
     },
     salt: {
         type: String, 
-        required: true,
     },
     alg: {
-        type: String, 
-        required: true,
+        type: String,
     },
     createdOn: {
         type: Date, 

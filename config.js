@@ -5,4 +5,7 @@ module.exports = {
         database: "upstack",
         SALT_WORK_FACTOR: 10,
     },
+    jwt: {
+        secret: process.env.JWT_SECRET,
+    },
 }
